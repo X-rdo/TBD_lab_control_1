@@ -37,10 +37,10 @@ INSERT INTO public.comuna(nombre_comuna) VALUES('LO BARNECHEA'),
 
 --Poblacion de tabla cliente
 INSERT INTO public.cliente(nombre, comuna_fk) VALUES( 'Alejandro', 5),
-(1, 1), 
-(2, 2),
-(3, 3), 
-(4, 4);
+('Yerko', 1), 
+('Ignacio', 2),
+('Ricardo', 3), 
+('Pablo', 4);
 
 --Poblacion de tabla edificio_estacionamiento
 INSERT INTO public.Edificio_estacionamiento(cantidad_estacionamientos, comuna_fk) VALUES(5, 5),
@@ -71,7 +71,7 @@ INSERT INTO Sueldo (dinero) VALUES (420000),
 (530000);
 
 --Poblacion de tabla Cliente_vehiculo
-INSERT INTO Cliente_vehiculo (cliente, vehiculo) VALUES (1, 1), 
+INSERT INTO Cliente_vehiculo (cliente_fk, vehiculo_fk) VALUES (1, 1), 
 (2, 2), 
 (3, 3), 
 (4, 4), 
