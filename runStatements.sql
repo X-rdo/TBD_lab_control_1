@@ -24,8 +24,56 @@ ORDER BY
 -- COLUMNAS:
 
 -- 3. Empleados con mayor y menor sueldo por edificio.
--- COLUMNAS:
+-- COLUMNAS: id_edificios, nombre_cliente (sueldo minimo), nombre_cliente (sueldo mas alto)
 
+SELECT 
+    sueldos.edificio as edificio, 
+    E1.nombre as bajo, 
+    E2.nombre as altos 
+FROM 
+Empleado as E1 JOIN                                                                                     -- tabla anidada que entrega id de los edificios con los id del sueldo minimo y maximo
+    (SELECT 
+        smax.id_edificio_estacionamiento AS edificio, 
+        smin.id_sueldo as minimo, 
+        smax.id_sueldo as maximo 
+    FROM 
+ 	    (SELECT                                                                                         -- consulta que obtiene el id del sueldo maximo
+            ES.id_edificio_estacionamiento, 
+            MAX(S.dinero) as maximo, 
+            (SELECT 
+                S1.id_sueldo 
+            FROM 
+                Sueldo AS S1 
+            WHERE 
+                S1.dinero = MAX(S.dinero))
+        FROM
+            Empleado AS E 
+            JOIN 
+                Sueldo as S ON E.sueldo_fk=S.id_sueldo 
+            JOIN
+                Edificio_estacionamiento AS ES ON E.edificio_estacionamiento_fk=ES.id_edificio_estacionamiento
+        GROUP BY 
+            ES.id_edificio_estacionamiento) AS smax 
+    JOIN 
+	    (SELECT 
+            ES.id_edificio_estacionamiento,                                                             -- consulta que obtiene el id del sueldo minimo
+            MIN(S.dinero) as minimo, 
+            (SELECT 
+                S1.id_sueldo 
+            FROM 
+                Sueldo AS S1 
+            WHERE 
+                S1.dinero = MIN(S.dinero))
+        FROM
+            Empleado AS E 
+            JOIN 
+                Sueldo as S ON E.sueldo_fk=S.id_sueldo 
+            JOIN 
+                Edificio_estacionamiento AS ES ON E.edificio_estacionamiento_fk=ES.id_edificio_estacionamiento
+            GROUP BY ES.id_edificio_estacionamiento) AS smin
+        on smin.id_edificio_estacionamiento=smax.id_edificio_estacionamiento) as sueldos on
+	    E1.sueldo_fk=sueldos.minimo JOIN Empleado as E2 on sueldos.maximo=E2.sueldo_fk                  -- se realizan join para ubicar a las personas que tengan el sueldo con id minimo y maximo
+	
 -- 4. Lista de comunas con la cantidad de clientes que residen en ellas.
 -- COLUMNAS:
 
