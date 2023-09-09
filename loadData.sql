@@ -71,11 +71,11 @@ INSERT INTO Sueldo (dinero) VALUES (420000),
 (530000);
 
 --Poblacion de tabla Cliente_vehiculo
-INSERT INTO Cliente_vehiculo (cliente, vehiculo) VALUES ('Alejandro', 1), 
-('Yerko', 2), 
-('Ignacio', 3), 
-('Ricardo', 4), 
-('Pablo', 5);
+INSERT INTO Cliente_vehiculo (cliente, vehiculo) VALUES (1, 1), 
+(2, 2), 
+(3, 3), 
+(4, 4), 
+(5, 5);
 
 --Poblacion de tabla Lugar_cliveh
 INSERT INTO Lugar_cliveh (lugar_fk, cliente_vehiculo_fk) VALUES (1, 1), 
