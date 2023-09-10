@@ -75,8 +75,18 @@ Empleado as E1 JOIN                                                             
 	    E1.sueldo_fk=sueldos.minimo JOIN Empleado as E2 on sueldos.maximo=E2.sueldo_fk                  -- se realizan join para ubicar a las personas que tengan el sueldo con id minimo y maximo
 	
 -- 4. Lista de comunas con la cantidad de clientes que residen en ellas.
--- COLUMNAS:
+-- COLUMNAS:nombre_comuna, id_cliente
 
+SELECT
+    Co.nombre_comuna, 
+    COUNT(Cli.id_cliente) AS total_cliente                                      -- cuenta la cantidad de clientes que se encuentran en esa comuna.
+FROM 
+   Comuna AS Co                                                                 -- se realizan join para ubicar los id de comuna que se repiten en la tabla cliente.
+   JOIN Cliente AS Cli ON Co.id_comuna = Cli.comuna_fk
+
+GROUP BY Co.nombre_comuna                                                       -- agrupa por nombre de la comuna.
+ORDER BY total_cliente ASC;                                                     -- para terminar ordenando ascendentemente por la cantidad de clientes que residen en esa comuna.
+                                                             
 -- 5. Lista de edificio con más lugares disponibles (sin contrato).
 -- COLUMNAS:
 
