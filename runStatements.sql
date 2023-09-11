@@ -89,6 +89,38 @@ ORDER BY total_cliente ASC;                                                     
                                                              
 -- 5. Lista de edificio con más lugares disponibles (sin contrato).
 -- COLUMNAS:
+SELECT *
+    FROM 
+    (SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos
+        FROM edificio_estacionamiento AS E
+            LEFT JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+            WHERE Co.edificio_estacionamiento_fk IS NULL
+
+    UNION
+
+    SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos - lugares_ocupados.cantidad_ocupada AS CantidadRestante
+	    FROM edificio_estacionamiento AS E
+		    JOIN (SELECT E.id_edificio_estacionamiento,  count(E.id_edificio_estacionamiento) AS cantidad_ocupada
+			    FROM edificio_estacionamiento AS E
+			    JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+			    GROUP BY E.id_edificio_estacionamiento) AS lugares_ocupados
+			    ON lugares_ocupados.id_edificio_estacionamiento = E.id_edificio_estacionamiento) AS tablas_Unidas
+			    WHERE cantidad_estacionamientos = (SELECT MAX(cantidad_estacionamientos) FROM 
+                    (SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos
+                        FROM edificio_estacionamiento AS E
+                            LEFT JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+                        WHERE Co.edificio_estacionamiento_fk IS NULL
+
+                    UNION
+
+                    SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos - lugares_ocupados.cantidad_ocupada AS CantidadRestante
+	                    FROM edificio_estacionamiento AS E
+		                    JOIN (SELECT E.id_edificio_estacionamiento,  count(E.id_edificio_estacionamiento) AS cantidad_ocupada
+			            FROM edificio_estacionamiento AS E
+			                JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+			            GROUP BY E.id_edificio_estacionamiento) AS lugares_ocupados
+			            ON lugares_ocupados.id_edificio_estacionamiento = E.id_edificio_estacionamiento) AS tablas_Unidas)
+        ORDER BY id_edificio_estacionamiento;
 
 -- 6. Lista de edificio con menos lugares disponibles.
 -- COLUMNAS:
