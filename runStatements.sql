@@ -163,7 +163,17 @@ SELECT *
 -- COLUMNAS:
 
 -- 8. Lugar más usado por edificio.
--- COLUMNAS:
+-- COLUMNAS: id_edificio, id_lugar, cantidad_de_usos
+
+
+SELECT 
+    ed.id_edificio_estacionamiento AS Edificio,
+    id_lugar, 
+    count(*) AS cantidad_de_usos
+FROM Edificio_estacionamiento AS ed 
+    JOIN Lugar AS L ON L.edificios_estacion_fk=ed.id_edificio_estacionamiento
+    JOIN Lugar_cliveh AS LC ON LC.lugar_fk=L.id_lugar
+GROUP BY ed.id_edificio_estacionamiento,id_lugar;
 
 -- 9. Edificio con más empleados, indicando el número de empleados de ese edificio.
 -- COLUMNAS:
