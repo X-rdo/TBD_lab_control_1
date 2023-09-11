@@ -180,18 +180,18 @@ WHERE col=1;                                                                    
 
 
 -- 9. Edificio con más empleados, indicando el número de empleados de ese edificio.
--- COLUMNAS:
+-- COLUMNAS: id_edificio, cantidad_empleados
 SELECT * 
 FROM
     (SELECT 
         Ed.id_edificio_estacionamiento AS edificio,  
-        count(*) AS cantidad 
+        count(*) AS cantidad_empleados                                                                                      --Se cuenta la cantidad de tuplas que existen por edificio
     FROM
         Empleado AS E 
-        JOIN Edificio_estacionamiento AS Ed ON E.edificio_estacionamiento_fk=Ed.id_edificio_estacionamiento
-    GROUP BY Ed.id_edificio_estacionamiento) AS C
-ORDER BY cantidad DESC
-LIMIT 1;
+        JOIN Edificio_estacionamiento AS Ed ON E.edificio_estacionamiento_fk=Ed.id_edificio_estacionamiento                 --Se hace join de empleado con edificio
+    GROUP BY Ed.id_edificio_estacionamiento) AS C                                                                           --Se agrupan segun el id del edificio
+ORDER BY cantidad_empleados DESC  
+LIMIT 1;                                                                                                                    --Se ordenan las tablas segun la cantidad de empleados de forma descendente y se limitan las tuplas a 1
 
 -- 10. lista de sueldos por tipo de empleado por edificio, destacar la comuna del edificio.
 -- COLUMNAS:
