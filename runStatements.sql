@@ -164,16 +164,19 @@ SELECT *
 
 -- 8. Lugar más usado por edificio.
 -- COLUMNAS: id_edificio, id_lugar, cantidad_de_usos
+SELECT C.Edificio, id_lugar, cantidad_de_usos
+FROM 
+	(SELECT 
+			ed.id_edificio_estacionamiento AS Edificio,
+			id_lugar, 
+			count(*) AS cantidad_de_usos,
+	 		ROW_NUMBER() OVER (PARTITION BY ed.id_edificio_estacionamiento ORDER BY count(*) DESC) AS col                    --Se crea una columna que asigna un valor a la fila según la cantidad de usos que tenga el lugar
+		FROM Edificio_estacionamiento AS ed 
+			JOIN Lugar AS L ON L.edificios_estacion_fk=ed.id_edificio_estacionamiento                   
+			JOIN Lugar_cliveh AS LC ON LC.lugar_fk=L.id_lugar
+		GROUP BY ed.id_edificio_estacionamiento,id_lugar) AS C                                                               --Se hace un join con las tablas edificio, lugar y cliente_vehic para, luego se agrupan por el edificio y se cuentan las instancias de cada estacionamiento en la tabla resultante
+WHERE col=1                                                                                                                  --Se seleccionan la tuplas que tengan el numero 1, es decir aquellas que tengan la mayor cantidad de usos de cada edificio
 
-
-SELECT 
-    ed.id_edificio_estacionamiento AS Edificio,
-    id_lugar, 
-    count(*) AS cantidad_de_usos
-FROM Edificio_estacionamiento AS ed 
-    JOIN Lugar AS L ON L.edificios_estacion_fk=ed.id_edificio_estacionamiento
-    JOIN Lugar_cliveh AS LC ON LC.lugar_fk=L.id_lugar
-GROUP BY ed.id_edificio_estacionamiento,id_lugar;
 
 -- 9. Edificio con más empleados, indicando el número de empleados de ese edificio.
 -- COLUMNAS:
