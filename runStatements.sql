@@ -88,13 +88,13 @@ GROUP BY Co.nombre_comuna                                                       
 ORDER BY total_cliente ASC;                                                     -- para terminar ordenando ascendentemente por la cantidad de clientes que residen en esa comuna.
                                                              
 -- 5. Lista de edificio con más lugares disponibles (sin contrato).
--- COLUMNAS:
+-- COLUMNAS: id_edificio_estacionamiento, cantidad estacionamientos
 SELECT *
     FROM 
     (SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos
         FROM edificio_estacionamiento AS E
             LEFT JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
-            WHERE Co.edificio_estacionamiento_fk IS NULL
+            WHERE Co.edificio_estacionamiento_fk IS NULL                                                    -- se filtran los edificios que no tengan asosciados contratos
 
     UNION
 
@@ -103,9 +103,9 @@ SELECT *
 		    JOIN (SELECT E.id_edificio_estacionamiento,  count(E.id_edificio_estacionamiento) AS cantidad_ocupada
 			    FROM edificio_estacionamiento AS E
 			    JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
-			    GROUP BY E.id_edificio_estacionamiento) AS lugares_ocupados
+			    GROUP BY E.id_edificio_estacionamiento) AS lugares_ocupados                                 -- Se seleccionan los edificios con contratos asociados y se le restan a los estacionamientos totales.
 			    ON lugares_ocupados.id_edificio_estacionamiento = E.id_edificio_estacionamiento) AS tablas_Unidas
-			    WHERE cantidad_estacionamientos = (SELECT MAX(cantidad_estacionamientos) FROM 
+			    WHERE cantidad_estacionamientos = (SELECT MAX(cantidad_estacionamientos) FROM               -- En base a las tablas creadas anteriormente, se sacan los estacionamiento con más lugares disponibles.
                     (SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos
                         FROM edificio_estacionamiento AS E
                             LEFT JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
@@ -123,7 +123,41 @@ SELECT *
         ORDER BY id_edificio_estacionamiento;
 
 -- 6. Lista de edificio con menos lugares disponibles.
--- COLUMNAS:
+-- COLUMNAS: id_edificio_estacionamiento, cantidad estacionamientos
+
+SELECT *                                                                    
+    FROM 
+    (SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos
+        FROM edificio_estacionamiento AS E
+            LEFT JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+            WHERE Co.edificio_estacionamiento_fk IS NULL                                                                            -- Se filtran los datos que no estan en contrato
+
+    UNION
+
+    SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos - lugares_ocupados.cantidad_ocupada AS CantidadRestante
+	    FROM edificio_estacionamiento AS E
+		    JOIN (SELECT E.id_edificio_estacionamiento,  count(E.id_edificio_estacionamiento) AS cantidad_ocupada
+			    FROM edificio_estacionamiento AS E
+			    JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+			    GROUP BY E.id_edificio_estacionamiento) AS lugares_ocupados
+			    ON lugares_ocupados.id_edificio_estacionamiento = E.id_edificio_estacionamiento) AS tablas_Unidas                     -- Se filtran los datos que tienen contrato y se les restan a los estacionamientos totales
+
+			    WHERE cantidad_estacionamientos = (SELECT MIN(cantidad_estacionamientos) FROM                                        -- En base a las tablas creadas anteriormente, se selecciona el edificio con menor numero de estacionamientos
+                        (SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos                                           -- disponibles
+                            FROM edificio_estacionamiento AS E
+                            LEFT JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+                        WHERE Co.edificio_estacionamiento_fk IS NULL
+
+                    UNION
+
+                    SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos - lugares_ocupados.cantidad_ocupada AS CantidadRestante
+	                    FROM edificio_estacionamiento AS E
+		                    JOIN (SELECT E.id_edificio_estacionamiento,  count(E.id_edificio_estacionamiento) AS cantidad_ocupada
+			            FROM edificio_estacionamiento AS E
+			                JOIN contrato AS Co ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+			            GROUP BY E.id_edificio_estacionamiento) AS lugares_ocupados
+			            ON lugares_ocupados.id_edificio_estacionamiento = E.id_edificio_estacionamiento) AS tablas_Unidas)
+        ORDER BY id_edificio_estacionamiento;
 
 -- 7. Lista de clientes con más autos por edificio.
 -- COLUMNAS:
