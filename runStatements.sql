@@ -21,11 +21,11 @@ ORDER BY
     EE.id_edificio_estacionamiento, monto_total_gastado DESC;                                           --Se agrupa en orden desendiente por el monto total gastado.
 
 -- 2. Modelos de auto menos recurrente por edificio.
--- COLUMNAS:
+-- COLUMNAS: id_edificio_estacionamiento, Marca y modelove
 
-SELECT tavlita2.id_edificio_estacionamiento, modelo.marca, modelo.modelove
+SELECT Tabla2.id_edificio_estacionamiento, modelo.marca, modelo.modelove
 FROM
-	(SELECT Tavlita.id_edificio_estacionamiento, MIN(Tavlita.Cantidad_Modelo) as ModeloMin, Tavlita.id_modelo
+	(SELECT Tabla.id_edificio_estacionamiento, MIN(Tabla.Cantidad_Modelo) as ModeloMin, Tabla.id_modelo
 	 FROM 
 		(SELECT E.id_edificio_estacionamiento, M.id_modelo, COUNT(M.id_modelo) AS Cantidad_Modelo
           FROM edificio_estacionamiento AS E 
@@ -37,9 +37,11 @@ FROM
 	 			ON V.id_vehiculo = Cl.vehiculo_fk
 			 INNER JOIN modelo AS M
 	 			ON V.modelo_fk = M.id_modelo
-			GROUP BY E.id_edificio_estacionamiento, M.id_modelo) AS Tavlita
-	GROUP BY Tavlita.id_edificio_estacionamiento, Tavlita.id_modelo) AS tavlita2 
-INNER JOIN modelo on tavlita2.id_modelo = modelo.id_modelo
+			GROUP BY E.id_edificio_estacionamiento, M.id_modelo) AS Tabla                        -- Se obtienen los id de los modelos por cada edificio y su cantidad
+	GROUP BY Tabla.id_edificio_estacionamiento, Tabla.id_modelo) AS Tabla2                       -- Se filtra por la cantidad minima de modelos que hay por edificio 
+                                                                                                 -- (Se considera que puede haber multiples minimos)
+INNER JOIN modelo on Tabla2.id_modelo = modelo.id_modelo                                         -- Se determina el modelo de los id's resultantes
+                                                                                                 -- entregando los modelos menos recurrentes por edificio
 
 -- 3. Empleados con mayor y menor sueldo por edificio.
 -- COLUMNAS: id_edificios, nombre_cliente (sueldo minimo), nombre_cliente (sueldo mas alto)
