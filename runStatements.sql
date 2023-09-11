@@ -23,6 +23,24 @@ ORDER BY
 -- 2. Modelos de auto menos recurrente por edificio.
 -- COLUMNAS:
 
+SELECT tavlita2.id_edificio_estacionamiento, modelo.marca, modelo.modelove
+FROM
+	(SELECT Tavlita.id_edificio_estacionamiento, MIN(Tavlita.Cantidad_Modelo) as ModeloMin, Tavlita.id_modelo
+	 FROM 
+		(SELECT E.id_edificio_estacionamiento, M.id_modelo, COUNT(M.id_modelo) AS Cantidad_Modelo
+          FROM edificio_estacionamiento AS E 
+	 		INNER JOIN contrato AS Co 
+	 			ON E.id_edificio_estacionamiento = Co.edificio_estacionamiento_fk
+			 INNER JOIN cliente_vehiculo AS Cl
+	 			ON Cl.id_cliente_vehiculo = Co.cliente_vehiculo_fk
+			 INNER JOIN vehiculo AS V
+	 			ON V.id_vehiculo = Cl.vehiculo_fk
+			 INNER JOIN modelo AS M
+	 			ON V.modelo_fk = M.id_modelo
+			GROUP BY E.id_edificio_estacionamiento, M.id_modelo) AS Tavlita
+	GROUP BY Tavlita.id_edificio_estacionamiento, Tavlita.id_modelo) AS tavlita2 
+INNER JOIN modelo on tavlita2.id_modelo = modelo.id_modelo
+
 -- 3. Empleados con mayor y menor sueldo por edificio.
 -- COLUMNAS: id_edificios, nombre_cliente (sueldo minimo), nombre_cliente (sueldo mas alto)
 
