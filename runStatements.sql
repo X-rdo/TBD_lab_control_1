@@ -9,9 +9,9 @@ FROM Cliente C
 	GROUP BY E.id_cliente, C.nombre, EE.id_edificio_estacionamiento                                              --Se agrupa por cliente y edificio.
 ORDER BY EE.id_edificio_estacionamiento, monto_total_gastado DESC;                                     --Se agrupa en orden desendiente por el monto total gastado.
 
+
 -- 2. Modelos de auto menos recurrente por edificio.
 -- COLUMNAS: id_edificio_estacionamiento, Marca y modelove
-
 SELECT Tabla2.id_edificio_estacionamiento, modelo.marca, modelo.modelove
 FROM
 	(SELECT Tabla.id_edificio_estacionamiento, MIN(Tabla.Cantidad_Modelo) as ModeloMin, Tabla.id_modelo
@@ -32,9 +32,9 @@ FROM
 INNER JOIN modelo on Tabla2.id_modelo = modelo.id_modelo                                         -- Se determina el modelo de los id's resultantes
                                                                                                  -- entregando los modelos menos recurrentes por edificio
 
+
 -- 3. Empleados con mayor y menor sueldo por edificio.
 -- COLUMNAS: id_edificios, nombre_cliente (sueldo minimo), nombre_cliente (sueldo mas alto)
-
 SELECT 
     sueldos.edificio as edificio, 
     E1.nombre as bajo, 
@@ -82,10 +82,10 @@ Empleado as E1 JOIN                                                             
             GROUP BY ES.id_edificio_estacionamiento) AS smin
         on smin.id_edificio_estacionamiento=smax.id_edificio_estacionamiento) as sueldos on
 	    E1.sueldo_fk=sueldos.minimo JOIN Empleado as E2 on sueldos.maximo=E2.sueldo_fk                  -- se realizan join para ubicar a las personas que tengan el sueldo con id minimo y maximo
-	
+
+
 -- 4. Lista de comunas con la cantidad de clientes que residen en ellas.
 -- COLUMNAS:nombre_comuna, id_cliente
-
 SELECT
     Co.nombre_comuna, 
     COUNT(Cli.id_cliente) AS total_cliente                                      -- cuenta la cantidad de clientes que se encuentran en esa comuna.
@@ -95,7 +95,8 @@ FROM
 
 GROUP BY Co.nombre_comuna                                                       -- agrupa por nombre de la comuna.
 ORDER BY total_cliente ASC;                                                     -- para terminar ordenando ascendentemente por la cantidad de clientes que residen en esa comuna.
-                                                             
+
+                                                           
 -- 5. Lista de edificio con más lugares disponibles (sin contrato).
 -- COLUMNAS: id_edificio_estacionamiento, cantidad estacionamientos
 SELECT *
@@ -131,9 +132,9 @@ SELECT *
 			            ON lugares_ocupados.id_edificio_estacionamiento = E.id_edificio_estacionamiento) AS tablas_Unidas)
         ORDER BY id_edificio_estacionamiento;
 
+
 -- 6. Lista de edificio con menos lugares disponibles.
 -- COLUMNAS: id_edificio_estacionamiento, cantidad estacionamientos
-
 SELECT *                                                                    
     FROM 
     (SELECT E.id_edificio_estacionamiento, E.cantidad_estacionamientos
@@ -168,8 +169,23 @@ SELECT *
 			            ON lugares_ocupados.id_edificio_estacionamiento = E.id_edificio_estacionamiento) AS tablas_Unidas)
         ORDER BY id_edificio_estacionamiento;
 
+
 -- 7. Lista de clientes con más autos por edificio.
--- COLUMNAS:
+-- COLUMNAS: id_cliente, nombre_cliente, id_edificio, total_autos
+SELECT C.id_cliente, C.nombre AS nombre_cliente, E.id_edificio AS id_edificio, COALESCE(APC.total_autos, 0) AS total_autos          --Se seleccionan los datos a extraer y para filtrar las tablas
+FROM Cliente C                                                                                                                      --El comando COALESCE permite dar el valor 0 en caso de que la consulta sea nula, y asi poder agrupar por este dato.
+JOIN(
+     SELECT L.edificios_estacion_fk AS id_edificio, LC.cliente_vehiculo_fk AS id_cliente                                            --Se extraen los datos del edificio estacion con el cliente
+     FROM Lugar_cliveh LC
+		JOIN Lugar L ON LC.lugar_fk = L.id_lugar                                                                                    --Se extrae el lugar
+    ) E ON C.id_cliente = E.id_cliente                                                                                              --Se condiciona por el id cliente obtenido anteriormente.
+LEFT JOIN
+    (SELECT CV.cliente_fk AS id_cliente, COUNT(*) AS total_autos                                                                    --Se extrae el id del cliente y la cantidad de autos de la tabla de vehiculos.
+     FROM Cliente_vehiculo CV
+     GROUP BY CV.cliente_fk
+    ) APC ON C.id_cliente = APC.id_cliente                                                                                          --Se condiciona la interccion del join, con la id del cliente, como filtro
+ORDER BY E.id_edificio, total_autos DESC;                                                                                           --Se agrupa por edicio y total de autos encontrados, por cada cliente.
+
 
 -- 8. Lugar más usado por edificio.
 -- COLUMNAS: id_edificio, id_lugar, cantidad_de_usos
@@ -201,6 +217,7 @@ FROM
     GROUP BY Ed.id_edificio_estacionamiento) AS C                                                                           --Se agrupan segun el id del edificio
 ORDER BY cantidad_empleados DESC  
 LIMIT 1;                                                                                                                    --Se ordenan las tablas segun la cantidad de empleados de forma descendente y se limitan las tuplas a 1
+
 
 -- 10. lista de sueldos por tipo de empleado por edificio, destacar la comuna del edificio.
 -- COLUMNAS: cargo_empleado, comuna, total_sueldos.
