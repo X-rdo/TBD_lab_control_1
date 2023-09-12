@@ -1,24 +1,13 @@
 -- 1. Lista de clientes que gasta más por edificio.
 -- COLUMNAS: id_cliente, nombre_cliente, id_edificio, monto_total_gastado.
-SELECT
-    E.id_cliente AS id_cliente,
-    C.nombre AS nombre_cliente,
-    EE.id_edificio_estacionamiento AS id_edificio,
-    SUM(P.monto) AS monto_total_gastado
-FROM
-    Cliente C
-    JOIN
-        Cliente_vehiculo CV ON C.id_cliente = CV.cliente_fk                                             --Se filtra la tabla cliente vehiculo, con la id del cliente.
-    JOIN
-        Contrato Co ON CV.id_cliente_vehiculo = Co.cliente_vehiculo_fk                                  --Se extrae todos los contratos de ese cliente.
-    JOIN
-        Edificio_estacionamiento EE ON Co.edificio_estacionamiento_fk = EE.id_edificio_estacionamiento  --Se busca los edificios en donde ha generado gasto con los contratos encontrados.
-    JOIN
-        Pago P ON Co.pago_fk = P.id_pago                                                                --Se extrae el pago.
-GROUP BY
-    E.id_cliente, C.nombre, EE.id_edificio_estacionamiento                                              --Se agrupa por cliente y edificio.
-ORDER BY
-    EE.id_edificio_estacionamiento, monto_total_gastado DESC;                                           --Se agrupa en orden desendiente por el monto total gastado.
+SELECT E.id_cliente AS id_cliente, C.nombre AS nombre_cliente, EE.id_edificio_estacionamiento AS id_edificio, SUM(P.monto) AS monto_total_gastado
+FROM Cliente C
+    JOIN Cliente_vehiculo CV ON C.id_cliente = CV.cliente_fk                                             --Se filtra la tabla cliente vehiculo, con la id del cliente.
+    JOIN Contrato Co ON CV.id_cliente_vehiculo = Co.cliente_vehiculo_fk                                  --Se extrae todos los contratos de ese cliente.
+    JOIN Edificio_estacionamiento EE ON Co.edificio_estacionamiento_fk = EE.id_edificio_estacionamiento  --Se busca los edificios en donde ha generado gasto con los contratos encontrados.
+    JOIN Pago P ON Co.pago_fk = P.id_pago                                                                --Se extrae el pago.
+	GROUP BY E.id_cliente, C.nombre, EE.id_edificio_estacionamiento                                              --Se agrupa por cliente y edificio.
+ORDER BY EE.id_edificio_estacionamiento, monto_total_gastado DESC;                                     --Se agrupa en orden desendiente por el monto total gastado.
 
 -- 2. Modelos de auto menos recurrente por edificio.
 -- COLUMNAS: id_edificio_estacionamiento, Marca y modelove
@@ -214,4 +203,15 @@ ORDER BY cantidad_empleados DESC
 LIMIT 1;                                                                                                                    --Se ordenan las tablas segun la cantidad de empleados de forma descendente y se limitan las tuplas a 1
 
 -- 10. lista de sueldos por tipo de empleado por edificio, destacar la comuna del edificio.
--- COLUMNAS:
+-- COLUMNAS: cargo_empleado, comuna, total_sueldos.
+SELECT E.cargo AS cargo_empleado, C.nombre_comuna AS comuna, SUM(S.dinero) AS total_sueldos
+FROM Empleado E
+	JOIN(
+		 SELECT EE.id_empleado AS id_empleado,EE.edificio_estacionamiento_fk AS id_edificio
+			FROM Empleado EE
+		) TE ON E.id_empleado = TE.id_empleado
+	JOIN Sueldo S ON TE.id_empleado = S.id_sueldo
+	JOIN Edificio_estacionamiento EE ON TE.id_edificio = EE.id_edificio_estacionamiento
+	JOIN Comuna C ON EE.comuna_fk = C.id_comuna
+	GROUP BY E.cargo, C.nombre_comuna
+ORDER BY E.cargo, C.nombre_comuna;
