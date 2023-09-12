@@ -204,14 +204,14 @@ LIMIT 1;                                                                        
 
 -- 10. lista de sueldos por tipo de empleado por edificio, destacar la comuna del edificio.
 -- COLUMNAS: cargo_empleado, comuna, total_sueldos.
-SELECT E.cargo AS cargo_empleado, C.nombre_comuna AS comuna, SUM(S.dinero) AS total_sueldos
+SELECT E.cargo AS cargo_empleado, C.nombre_comuna AS comuna, SUM(S.dinero) AS total_sueldos                                 --Se seleccionan los datos a extraer y para filtrar las tablas
 FROM Empleado E
 	JOIN(
-		 SELECT EE.id_empleado AS id_empleado,EE.edificio_estacionamiento_fk AS id_edificio
+		 SELECT EE.id_empleado AS id_empleado,EE.edificio_estacionamiento_fk AS id_edificio                                 --Se extraen los datos del empleado con los del edificio
 			FROM Empleado EE
 		) TE ON E.id_empleado = TE.id_empleado
-	JOIN Sueldo S ON TE.id_empleado = S.id_sueldo
-	JOIN Edificio_estacionamiento EE ON TE.id_edificio = EE.id_edificio_estacionamiento
-	JOIN Comuna C ON EE.comuna_fk = C.id_comuna
-	GROUP BY E.cargo, C.nombre_comuna
-ORDER BY E.cargo, C.nombre_comuna;
+	JOIN Sueldo S ON TE.id_empleado = S.id_sueldo                                                                           --Se extrae el sueldo aplicando un join con el id_empleado
+	JOIN Edificio_estacionamiento EE ON TE.id_edificio = EE.id_edificio_estacionamiento                                     --Se intersecta con la tabla de edificio estacionamiento
+	JOIN Comuna C ON EE.comuna_fk = C.id_comuna                                                                             --Se extrae la comuna del edificio.
+	GROUP BY E.cargo, C.nombre_comuna                                                                                       --Se agrupo por cargo y comunca
+ORDER BY E.cargo, C.nombre_comuna;                                                                                          --Se ordenan los datos por cargo y comuna.
